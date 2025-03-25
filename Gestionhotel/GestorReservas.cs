@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using Gestionhotel;
+﻿using System;
 using System.Collections.Generic;
-using System;
+using System.Linq;
+using Gestionhotel;
 
 public class GestorReservas
 {
@@ -11,6 +11,7 @@ public class GestorReservas
     private GestorReservas() { }
     public static GestorReservas Instancia => _instancia ?? (_instancia = new GestorReservas());
 
+    // Método para agregar reservas (existente)
     public void AgregarReserva(Reserva reserva)
     {
         if (_reservas.Any(r =>
@@ -22,8 +23,19 @@ public class GestorReservas
         _reservas.Add(reserva);
     }
 
+    // Método para eliminar reservas (nuevo)
+    public void EliminarReserva(Reserva reserva)
+    {
+        if (!_reservas.Contains(reserva))
+            throw new ArgumentException("Reserva no encontrada en el sistema");
+
+        _reservas.Remove(reserva);
+    }
+
+    // Método para listar reservas (existente)
     public List<Reserva> ObtenerTodasLasReservas() => new List<Reserva>(_reservas);
 
+    // Método para validar disponibilidad (existente)
     public bool ExisteReserva(int numeroHabitacion, DateTime fechaInicio, DateTime fechaFinal)
     {
         return _reservas.Any(r =>
@@ -33,4 +45,33 @@ public class GestorReservas
         );
     }
 
-}
+    //Método para editar reservas (nuevo)
+
+    public void EditarReserva(Reserva reserva, string nuevoNombre, int nuevoNumeroHabitacion, DateTime nuevaFecha, int nuevaDuracion, decimal nuevaTarifa)
+    {
+        if (reserva == null)
+            throw new ArgumentException("La reserva seleccionada no es válida.");
+
+        _reservas.Remove(reserva); // 🔹 Elimina la reserva anterior
+
+        // 🔹 Crear una nueva reserva con los datos actualizados
+        Reserva reservaEditada;
+
+        if (reserva is HabitacionEstandar)
+        {
+            reservaEditada = new HabitacionEstandar(nuevoNombre, nuevoNumeroHabitacion, nuevaFecha, nuevaDuracion, nuevaTarifa);
+        }
+        else if (reserva is HabitacionVIP)
+        {
+            reservaEditada = new HabitacionVIP(nuevoNombre, nuevoNumeroHabitacion, nuevaFecha, nuevaDuracion, nuevaTarifa);
+        }
+        else
+        {
+            throw new ArgumentException("Tipo de habitación no válido.");
+        }
+
+        _reservas.Add(reservaEditada); // 🔹 Agrega la reserva editada
+    }
+
+
+} 

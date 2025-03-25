@@ -26,5 +26,11 @@ namespace Gestionhotel
         }
 
         public abstract decimal CalcularCostoTotal();
+
+        // ✅ Nueva sobrecarga: Cálculo con número de noches personalizado
+        public decimal CalcularCostoTotal(int noches) => CalcularCostoTotal() / DuracionEstadia * noches;
+
+        // ✅ Nueva sobrecarga: Cálculo con tarifa personalizada
+        public decimal CalcularCostoTotal(int noches, decimal tarifa) => tarifa * noches;
     }
 }

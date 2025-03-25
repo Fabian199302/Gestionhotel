@@ -5,25 +5,55 @@ using System.Windows.Forms;
 
 namespace Gestionhotel
 {
-    public partial class frmGestionReservas : Form // Nombre corregido
+    public partial class frmGestionReservas : Form
     {
         private bool _updatingDates = false;
         private Dictionary<string, List<int>> _habitacionesDisponibles;
+        private Reserva reservaEnEdicion = null; // 🔹 Variable para almacenar la reserva en edición
 
-        public frmGestionReservas() // Constructor actualizado
+
+
+        public frmGestionReservas()
         {
             InitializeComponent();
+
+
             InicializarHabitaciones();
         }
+        
+
+        
+
+        private void frmGestionReservas_Load(object sender, EventArgs e)
+        {
+            // 🔹 Mostrar solo Tipo de Habitación al iniciar
+            lblHabitacionTipo.Visible = true;
+            cmbTipoHabitacion.Visible = true;
+
+            
+        }
+        
+
+        private void dateTimefinal_ValueChanged(object sender, EventArgs e)
+        {
+            if (!_updatingDates) ActualizarDuracion();
+
+            HABITACIONESDIPONIBLES.Visible = true;
+            listhabitaciones.Visible = true;
+            lblHabitacion.Visible = true;
+            txtHabitacion.Visible = true;
+            labelIngreseValor.Visible = true;
+            textIngreseValor.Visible = true;
+        }
+
 
         private void InicializarHabitaciones()
         {
             _habitacionesDisponibles = new Dictionary<string, List<int>>()
             {
-                { "vip", Enumerable.Range(201, 9).ToList() },       // VIP201-VIP209
-                { "estándar", Enumerable.Range(301, 9).ToList() }   // Estandar301-Estandar309
+                { "vip", Enumerable.Range(201, 9).ToList() },
+                { "estándar", Enumerable.Range(301, 9).ToList() }
             };
-
             listhabitaciones.SelectionMode = SelectionMode.None;
         }
 
@@ -46,9 +76,7 @@ namespace Gestionhotel
             var prefijo = tipo == "vip" ? "VIP" : "Estandar";
 
             foreach (var numero in _habitacionesDisponibles[tipo])
-            {
                 listhabitaciones.Items.Add($"{prefijo}{numero}");
-            }
         }
 
         private void LimpiarCampos()
@@ -60,6 +88,7 @@ namespace Gestionhotel
 
             txtNombre.Clear();
             txtHabitacion.Clear();
+            textIngreseValor.Clear();
             cmbTipoHabitacion.SelectedIndex = -1;
             txtDiasEstadia.Text = "1";
             textvalorpagar.Text = "$0";
@@ -74,9 +103,8 @@ namespace Gestionhotel
                 DateTime fechaFinal = dateTimefinal.Value;
                 ValidarFechas(fechaInicio, fechaFinal);
 
-                TimeSpan diferencia = fechaFinal - fechaInicio;
-                int dias = diferencia.Days;
-                txtDiasEstadia.Text = dias < 0 ? "0" : dias.ToString();
+                int dias = (fechaFinal - fechaInicio).Days;
+                txtDiasEstadia.Text = dias < 1 ? "1" : dias.ToString();
 
                 if (ValidarCamposPreview())
                 {
@@ -84,10 +112,7 @@ namespace Gestionhotel
                     Reserva reservaTemporal = CrearReservaParaPreview();
                     textvalorpagar.Text = reservaTemporal.CalcularCostoTotal().ToString("C");
                 }
-                else
-                {
-                    textvalorpagar.Text = "$0";
-                }
+                else textvalorpagar.Text = "$0";
             }
             catch (Exception ex)
             {
@@ -95,7 +120,6 @@ namespace Gestionhotel
                 dateTimeinicio.Value = DateTime.Today;
                 dateTimefinal.Value = DateTime.Today.AddDays(1);
                 _updatingDates = false;
-
                 txtDiasEstadia.Text = "1";
                 textvalorpagar.Text = "$0";
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -104,8 +128,9 @@ namespace Gestionhotel
 
         private bool ValidarCamposPreview()
         {
-            // Solo validar tipo y número de habitación para el cálculo previo
-            return cmbTipoHabitacion.SelectedIndex != -1 && int.TryParse(txtHabitacion.Text, out int _);
+            return cmbTipoHabitacion.SelectedIndex != -1 &&
+                   int.TryParse(txtHabitacion.Text, out int _) &&
+                   decimal.TryParse(textIngreseValor.Text, out decimal _);
         }
 
         private void ValidarNumeroHabitacion()
@@ -128,6 +153,7 @@ namespace Gestionhotel
             int numeroHabitacion = int.Parse(txtHabitacion.Text);
             DateTime fechaReserva = dateTimeinicio.Value;
             int duracion = (dateTimefinal.Value - dateTimeinicio.Value).Days;
+            decimal tarifa = decimal.Parse(textIngreseValor.Text);
 
             string nombre = string.IsNullOrWhiteSpace(txtNombre.Text) ? "Cliente Temporal" : txtNombre.Text.Trim();
 
@@ -136,7 +162,8 @@ namespace Gestionhotel
                 nombre,
                 numeroHabitacion,
                 fechaReserva,
-                duracion
+                duracion,
+                tarifa
             );
         }
 
@@ -149,22 +176,146 @@ namespace Gestionhotel
                 throw new ArgumentException("Duración mínima: 1 noche");
         }
 
-        private void btnAgregar_Click(object sender, EventArgs e)
+        
+
+
+        private void buttonEliminar_Click(object sender, EventArgs e)
+        {
+            if (lstReserva.SelectedIndex == -1)
+            {
+                MessageBox.Show("Por favor, seleccione una reserva para eliminar.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DialogResult resultado = MessageBox.Show(
+                "¿Está seguro de eliminar esta reserva? Esta acción no se puede deshacer luego.",
+                "Confirmar Eliminación",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning
+            );
+
+            if (resultado == DialogResult.Yes)
+            {
+                try
+                {
+                    // Obtener la reserva seleccionada
+                    string reservaSeleccionada = lstReserva.SelectedItem.ToString();
+                    string[] datos = reservaSeleccionada.Split('|');
+                    int numeroHabitacion = int.Parse(datos[1].Replace(" Hab.", "").Trim());
+
+                    // Buscar la reserva en la lista de reservas
+                    Reserva reservaAEliminar = GestorReservas.Instancia.ObtenerTodasLasReservas()
+                        .FirstOrDefault(r => r.NumeroHabitacion == numeroHabitacion);
+
+                    if (reservaAEliminar != null)
+                    {
+                        GestorReservas.Instancia.EliminarReserva(reservaAEliminar);
+                        ActualizarListaReservas();
+                        MessageBox.Show("Reserva eliminada correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("No se encontró la reserva en el sistema.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al eliminar reserva: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void buttonEditar_Click(object sender, EventArgs e)
+        {
+            if (lstReserva.SelectedIndex == -1)
+            {
+                MessageBox.Show("Por favor, seleccione una reserva para editar.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DialogResult resultado = MessageBox.Show(
+                "¿Está seguro de editar la información? Esta acción no se puede revertir.",
+                "Confirmar Edición",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning
+            );
+
+            if (resultado == DialogResult.Yes)
+            {
+                MessageBox.Show("A continuación, llene el formulario con la información que desea cambiar.", "Editar Reserva", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                // ✅ Obtener la reserva seleccionada
+                string reservaSeleccionada = lstReserva.SelectedItem.ToString();
+                string[] datos = reservaSeleccionada.Split('|');
+                int numeroHabitacion = int.Parse(datos[1].Trim().Split(' ')[1]);
+
+                // ✅ Guardar la referencia directa a la reserva en `reservaEnEdicion`
+                reservaEnEdicion = GestorReservas.Instancia.ObtenerTodasLasReservas()
+                    .FirstOrDefault(r => r.NumeroHabitacion == numeroHabitacion);
+
+                if (reservaEnEdicion != null)
+                {
+                    // ✅ Llenar el formulario con los datos actuales
+                    txtNombre.Text = reservaEnEdicion.NombreCliente;
+                    txtHabitacion.Text = reservaEnEdicion.NumeroHabitacion.ToString();
+                    dateTimeinicio.Value = reservaEnEdicion.FechaReserva;
+                    dateTimefinal.Value = reservaEnEdicion.FechaReserva.AddDays(reservaEnEdicion.DuracionEstadia);
+                    textIngreseValor.Text = reservaEnEdicion is HabitacionEstandar
+                        ? ((HabitacionEstandar)reservaEnEdicion).TarifaFija.ToString()
+                        : ((HabitacionVIP)reservaEnEdicion).TarifaFija.ToString();
+
+                    // ✅ Habilitar el botón "Guardar Cambios"
+                    buttonGuardarCa.Enabled = true;
+
+                    buttonGuardarCa.Visible = true;
+                    btnAgregar.Visible = false;
+                }
+                else
+                {
+                    MessageBox.Show("No se encontró la reserva en el sistema.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+
+        private void buttonGuardarCa_Click(object sender, EventArgs e)
         {
             try
             {
+                if (reservaEnEdicion == null)
+                {
+                    MessageBox.Show("No hay ninguna reserva en edición.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 ValidarCampos();
-                Reserva nuevaReserva = CrearReserva();
-                GestorReservas.Instancia.AgregarReserva(nuevaReserva);
+
+                string nombre = txtNombre.Text.Trim();
+                int numeroHabitacion = int.Parse(txtHabitacion.Text);
+                DateTime fechaReserva = dateTimeinicio.Value;
+                int duracion = (dateTimefinal.Value - dateTimeinicio.Value).Days;
+                decimal tarifa = decimal.Parse(textIngreseValor.Text);
+
+                // ✅ Llamar a `EditarReserva()` con la referencia a `reservaEnEdicion`
+                GestorReservas.Instancia.EditarReserva(reservaEnEdicion, nombre, numeroHabitacion, fechaReserva, duracion, tarifa);
+
+                MessageBox.Show("Los cambios en la reserva se han guardado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                // ✅ Limpiar variable y deshabilitar el botón "Guardar Cambios"
+                reservaEnEdicion = null;
+                buttonGuardarCa.Enabled = false;
+
+                // ✅ Refrescar la lista de reservas y limpiar el formulario
                 ActualizarListaReservas();
                 LimpiarCampos();
-                MessageBox.Show("Reserva exitosa!", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error: {ex.Message}", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+
 
         private void ValidarCampos()
         {
@@ -174,6 +325,12 @@ namespace Gestionhotel
             if (string.IsNullOrWhiteSpace(txtNombre.Text))
                 throw new ArgumentException("Nombre del cliente es obligatorio.");
 
+            if (string.IsNullOrWhiteSpace(textIngreseValor.Text))
+                throw new ArgumentException("La tarifa es obligatoria");
+
+            if (!decimal.TryParse(textIngreseValor.Text, out decimal tarifa) || tarifa <= 0)
+                throw new ArgumentException("Tarifa no válida (debe ser > 0)");
+
             ValidarFechas(dateTimeinicio.Value, dateTimefinal.Value);
             ValidarNumeroHabitacion();
         }
@@ -182,6 +339,7 @@ namespace Gestionhotel
         {
             string tipo = cmbTipoHabitacion.SelectedItem.ToString().Replace("Habitación ", "").ToLower();
             int numeroHabitacion = int.Parse(txtHabitacion.Text);
+            decimal tarifa = decimal.Parse(textIngreseValor.Text);
 
             if (!_habitacionesDisponibles[tipo].Contains(numeroHabitacion))
                 throw new ArgumentException("Número de habitación no válido para este tipo");
@@ -191,7 +349,8 @@ namespace Gestionhotel
                 txtNombre.Text.Trim(),
                 numeroHabitacion,
                 dateTimeinicio.Value,
-                (dateTimefinal.Value - dateTimeinicio.Value).Days
+                (dateTimefinal.Value - dateTimeinicio.Value).Days,
+                tarifa
             );
         }
 
@@ -208,11 +367,13 @@ namespace Gestionhotel
             }
         }
 
+        // Evento corregido sin cambiar el nombre original
         private void cmbTipoEmpleado_SelectedIndexChanged(object sender, EventArgs e)
         {
             bool habilitar = cmbTipoHabitacion.SelectedIndex != -1;
             txtNombre.Enabled = habilitar;
             txtHabitacion.Enabled = habilitar;
+            textIngreseValor.Enabled = habilitar;
             txtHabitacion.Clear();
             ActualizarListaHabitaciones();
             ActualizarDuracion();
@@ -223,14 +384,56 @@ namespace Gestionhotel
             if (!_updatingDates) ActualizarDuracion();
         }
 
-        private void dateTimefinal_ValueChanged(object sender, EventArgs e)
-        {
-            if (!_updatingDates) ActualizarDuracion();
-        }
+        
 
+        // Evento renombrado en el diseñador (no se cambia el nombre en el código)
         private void txtSalario_TextChanged(object sender, EventArgs e)
         {
             ActualizarDuracion();
+        }
+
+        private void textIngreseValor_TextChanged(object sender, EventArgs e)
+        {
+            if (decimal.TryParse(textIngreseValor.Text, out decimal tarifa) && tarifa > 0)
+            {
+                labelTotal.Visible = true;
+                textvalorpagar.Visible = true;
+                btnAgregar.Visible = true;
+            }
+        }
+
+        private void btnAgregar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ValidarCampos();
+                Reserva nuevaReserva = CrearReserva();
+                GestorReservas.Instancia.AgregarReserva(nuevaReserva);
+                ActualizarListaReservas();
+                LimpiarCampos();
+
+                MessageBox.Show("Reserva exitosa!", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                // 🔹 Ocultar `buttonGuardarCa` y mostrar los demás botones
+                buttonGuardarCa.Visible = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
+
+
+        private void lstReserva_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblHabitacion_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

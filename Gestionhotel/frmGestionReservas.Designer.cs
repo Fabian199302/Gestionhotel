@@ -32,7 +32,7 @@
             this.txtNombre = new System.Windows.Forms.TextBox();
             this.lblHabitacion = new System.Windows.Forms.Label();
             this.txtHabitacion = new System.Windows.Forms.TextBox();
-            this.lblTipoEmpleado = new System.Windows.Forms.Label();
+            this.lblHabitacionTipo = new System.Windows.Forms.Label();
             this.cmbTipoHabitacion = new System.Windows.Forms.ComboBox();
             this.lblHorasExtras = new System.Windows.Forms.Label();
             this.txtDiasEstadia = new System.Windows.Forms.TextBox();
@@ -47,6 +47,11 @@
             this.lblfechafinal = new System.Windows.Forms.Label();
             this.listhabitaciones = new System.Windows.Forms.ListBox();
             this.HABITACIONESDIPONIBLES = new System.Windows.Forms.Label();
+            this.buttonEliminar = new System.Windows.Forms.Button();
+            this.buttonEditar = new System.Windows.Forms.Button();
+            this.labelIngreseValor = new System.Windows.Forms.Label();
+            this.textIngreseValor = new System.Windows.Forms.TextBox();
+            this.buttonGuardarCa = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblNombre
@@ -68,28 +73,29 @@
             // lblHabitacion
             // 
             this.lblHabitacion.AutoSize = true;
-            this.lblHabitacion.Location = new System.Drawing.Point(35, 220);
+            this.lblHabitacion.Location = new System.Drawing.Point(35, 279);
             this.lblHabitacion.Name = "lblHabitacion";
             this.lblHabitacion.Size = new System.Drawing.Size(96, 13);
             this.lblHabitacion.TabIndex = 2;
             this.lblHabitacion.Text = "Ingrese Habitacion";
+            this.lblHabitacion.Click += new System.EventHandler(this.lblHabitacion_Click);
             // 
             // txtHabitacion
             // 
-            this.txtHabitacion.Location = new System.Drawing.Point(136, 217);
+            this.txtHabitacion.Location = new System.Drawing.Point(136, 276);
             this.txtHabitacion.Name = "txtHabitacion";
             this.txtHabitacion.Size = new System.Drawing.Size(100, 20);
             this.txtHabitacion.TabIndex = 3;
             // 
-            // lblTipoEmpleado
+            // lblHabitacionTipo
             // 
-            this.lblTipoEmpleado.AutoSize = true;
-            this.lblTipoEmpleado.Font = new System.Drawing.Font("Arial Black", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTipoEmpleado.Location = new System.Drawing.Point(12, 0);
-            this.lblTipoEmpleado.Name = "lblTipoEmpleado";
-            this.lblTipoEmpleado.Size = new System.Drawing.Size(376, 33);
-            this.lblTipoEmpleado.TabIndex = 4;
-            this.lblTipoEmpleado.Text = "Seleccione Tipo Habitaciòn";
+            this.lblHabitacionTipo.AutoSize = true;
+            this.lblHabitacionTipo.Font = new System.Drawing.Font("Arial Black", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblHabitacionTipo.Location = new System.Drawing.Point(12, 0);
+            this.lblHabitacionTipo.Name = "lblHabitacionTipo";
+            this.lblHabitacionTipo.Size = new System.Drawing.Size(376, 33);
+            this.lblHabitacionTipo.TabIndex = 4;
+            this.lblHabitacionTipo.Text = "Seleccione Tipo Habitaciòn";
             // 
             // cmbTipoHabitacion
             // 
@@ -118,7 +124,7 @@
             // 
             // btnAgregar
             // 
-            this.btnAgregar.Location = new System.Drawing.Point(88, 399);
+            this.btnAgregar.Location = new System.Drawing.Point(83, 486);
             this.btnAgregar.Name = "btnAgregar";
             this.btnAgregar.Size = new System.Drawing.Size(222, 38);
             this.btnAgregar.TabIndex = 8;
@@ -138,14 +144,15 @@
             // lstReserva
             // 
             this.lstReserva.FormattingEnabled = true;
-            this.lstReserva.Location = new System.Drawing.Point(467, 51);
+            this.lstReserva.Location = new System.Drawing.Point(496, 64);
             this.lstReserva.Name = "lstReserva";
-            this.lstReserva.Size = new System.Drawing.Size(277, 147);
+            this.lstReserva.Size = new System.Drawing.Size(381, 147);
             this.lstReserva.TabIndex = 10;
+            this.lstReserva.SelectedIndexChanged += new System.EventHandler(this.lstReserva_SelectedIndexChanged);
             // 
             // dateTimeinicio
             // 
-            this.dateTimeinicio.Location = new System.Drawing.Point(18, 279);
+            this.dateTimeinicio.Location = new System.Drawing.Point(0, 391);
             this.dateTimeinicio.Name = "dateTimeinicio";
             this.dateTimeinicio.Size = new System.Drawing.Size(200, 20);
             this.dateTimeinicio.TabIndex = 11;
@@ -153,7 +160,7 @@
             // 
             // dateTimefinal
             // 
-            this.dateTimefinal.Location = new System.Drawing.Point(233, 279);
+            this.dateTimefinal.Location = new System.Drawing.Point(220, 391);
             this.dateTimefinal.Name = "dateTimefinal";
             this.dateTimefinal.Size = new System.Drawing.Size(200, 20);
             this.dateTimefinal.TabIndex = 12;
@@ -161,7 +168,7 @@
             // 
             // textvalorpagar
             // 
-            this.textvalorpagar.Location = new System.Drawing.Point(136, 354);
+            this.textvalorpagar.Location = new System.Drawing.Point(136, 431);
             this.textvalorpagar.Name = "textvalorpagar";
             this.textvalorpagar.Size = new System.Drawing.Size(100, 20);
             this.textvalorpagar.TabIndex = 13;
@@ -169,7 +176,7 @@
             // labelTotal
             // 
             this.labelTotal.AutoSize = true;
-            this.labelTotal.Location = new System.Drawing.Point(35, 361);
+            this.labelTotal.Location = new System.Drawing.Point(35, 438);
             this.labelTotal.Name = "labelTotal";
             this.labelTotal.Size = new System.Drawing.Size(70, 13);
             this.labelTotal.TabIndex = 14;
@@ -178,7 +185,7 @@
             // lblfechainicio
             // 
             this.lblfechainicio.AutoSize = true;
-            this.lblfechainicio.Location = new System.Drawing.Point(46, 263);
+            this.lblfechainicio.Location = new System.Drawing.Point(35, 363);
             this.lblfechainicio.Name = "lblfechainicio";
             this.lblfechainicio.Size = new System.Drawing.Size(122, 13);
             this.lblfechainicio.TabIndex = 15;
@@ -187,7 +194,7 @@
             // lblfechafinal
             // 
             this.lblfechafinal.AutoSize = true;
-            this.lblfechafinal.Location = new System.Drawing.Point(261, 263);
+            this.lblfechafinal.Location = new System.Drawing.Point(245, 363);
             this.lblfechafinal.Name = "lblfechafinal";
             this.lblfechafinal.Size = new System.Drawing.Size(118, 13);
             this.lblfechafinal.TabIndex = 16;
@@ -196,7 +203,7 @@
             // listhabitaciones
             // 
             this.listhabitaciones.FormattingEnabled = true;
-            this.listhabitaciones.Location = new System.Drawing.Point(136, 100);
+            this.listhabitaciones.Location = new System.Drawing.Point(136, 161);
             this.listhabitaciones.Name = "listhabitaciones";
             this.listhabitaciones.Size = new System.Drawing.Size(120, 95);
             this.listhabitaciones.TabIndex = 17;
@@ -204,17 +211,68 @@
             // HABITACIONESDIPONIBLES
             // 
             this.HABITACIONESDIPONIBLES.AutoSize = true;
-            this.HABITACIONESDIPONIBLES.Location = new System.Drawing.Point(143, 84);
+            this.HABITACIONESDIPONIBLES.Location = new System.Drawing.Point(133, 145);
             this.HABITACIONESDIPONIBLES.Name = "HABITACIONESDIPONIBLES";
             this.HABITACIONESDIPONIBLES.Size = new System.Drawing.Size(109, 13);
             this.HABITACIONESDIPONIBLES.TabIndex = 18;
             this.HABITACIONESDIPONIBLES.Text = "Lista de Habitaciones";
             // 
-            // Form1
+            // buttonEliminar
+            // 
+            this.buttonEliminar.Location = new System.Drawing.Point(621, 217);
+            this.buttonEliminar.Name = "buttonEliminar";
+            this.buttonEliminar.Size = new System.Drawing.Size(132, 27);
+            this.buttonEliminar.TabIndex = 19;
+            this.buttonEliminar.Text = "Eliminar Reserva";
+            this.buttonEliminar.UseVisualStyleBackColor = true;
+            this.buttonEliminar.Click += new System.EventHandler(this.buttonEliminar_Click);
+            // 
+            // buttonEditar
+            // 
+            this.buttonEditar.Location = new System.Drawing.Point(778, 217);
+            this.buttonEditar.Name = "buttonEditar";
+            this.buttonEditar.Size = new System.Drawing.Size(118, 27);
+            this.buttonEditar.TabIndex = 20;
+            this.buttonEditar.Text = "Editar Reserva";
+            this.buttonEditar.UseVisualStyleBackColor = true;
+            this.buttonEditar.Click += new System.EventHandler(this.buttonEditar_Click);
+            // 
+            // labelIngreseValor
+            // 
+            this.labelIngreseValor.AutoSize = true;
+            this.labelIngreseValor.Location = new System.Drawing.Point(7, 102);
+            this.labelIngreseValor.Name = "labelIngreseValor";
+            this.labelIngreseValor.Size = new System.Drawing.Size(123, 13);
+            this.labelIngreseValor.TabIndex = 21;
+            this.labelIngreseValor.Text = "Ingrese Valor Habitaciòn";
+            // 
+            // textIngreseValor
+            // 
+            this.textIngreseValor.Location = new System.Drawing.Point(136, 95);
+            this.textIngreseValor.Name = "textIngreseValor";
+            this.textIngreseValor.Size = new System.Drawing.Size(100, 20);
+            this.textIngreseValor.TabIndex = 22;
+            // 
+            // buttonGuardarCa
+            // 
+            this.buttonGuardarCa.Location = new System.Drawing.Point(83, 530);
+            this.buttonGuardarCa.Name = "buttonGuardarCa";
+            this.buttonGuardarCa.Size = new System.Drawing.Size(222, 38);
+            this.buttonGuardarCa.TabIndex = 23;
+            this.buttonGuardarCa.Text = "Guardar Cambios";
+            this.buttonGuardarCa.UseVisualStyleBackColor = true;
+            this.buttonGuardarCa.Click += new System.EventHandler(this.buttonGuardarCa_Click);
+            // 
+            // frmGestionReservas
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(908, 528);
+            this.ClientSize = new System.Drawing.Size(935, 585);
+            this.Controls.Add(this.buttonGuardarCa);
+            this.Controls.Add(this.textIngreseValor);
+            this.Controls.Add(this.labelIngreseValor);
+            this.Controls.Add(this.buttonEditar);
+            this.Controls.Add(this.buttonEliminar);
             this.Controls.Add(this.HABITACIONESDIPONIBLES);
             this.Controls.Add(this.listhabitaciones);
             this.Controls.Add(this.lblfechafinal);
@@ -229,12 +287,12 @@
             this.Controls.Add(this.txtDiasEstadia);
             this.Controls.Add(this.lblHorasExtras);
             this.Controls.Add(this.cmbTipoHabitacion);
-            this.Controls.Add(this.lblTipoEmpleado);
+            this.Controls.Add(this.lblHabitacionTipo);
             this.Controls.Add(this.txtHabitacion);
             this.Controls.Add(this.lblHabitacion);
             this.Controls.Add(this.txtNombre);
             this.Controls.Add(this.lblNombre);
-            this.Name = "Form1";
+            this.Name = "frmGestionReservas";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
@@ -248,7 +306,7 @@
         private System.Windows.Forms.TextBox txtNombre;
         private System.Windows.Forms.Label lblHabitacion;
         private System.Windows.Forms.TextBox txtHabitacion;
-        private System.Windows.Forms.Label lblTipoEmpleado;
+        private System.Windows.Forms.Label lblHabitacionTipo;
         private System.Windows.Forms.ComboBox cmbTipoHabitacion;
         private System.Windows.Forms.Label lblHorasExtras;
         private System.Windows.Forms.TextBox txtDiasEstadia;
@@ -263,6 +321,11 @@
         private System.Windows.Forms.Label lblfechafinal;
         private System.Windows.Forms.ListBox listhabitaciones;
         private System.Windows.Forms.Label HABITACIONESDIPONIBLES;
+        private System.Windows.Forms.Button buttonEliminar;
+        private System.Windows.Forms.Button buttonEditar;
+        private System.Windows.Forms.Label labelIngreseValor;
+        private System.Windows.Forms.TextBox textIngreseValor;
+        private System.Windows.Forms.Button buttonGuardarCa;
     }
 }
 

@@ -1,23 +1,29 @@
-﻿using System;
+﻿using Gestionhotel;
+using System;
 
-namespace Gestionhotel
+public class HabitacionVIP : Reserva
 {
-    public class HabitacionVIP : Reserva
+    public decimal TarifaFija { get; }
+    private const decimal Descuento = 0.20m;
+
+    public HabitacionVIP(
+        string nombreCliente,
+        int numeroHabitacion,
+        DateTime fechaReserva,
+        int duracionEstadia,
+        decimal tarifaFija
+    ) : base(nombreCliente, numeroHabitacion, fechaReserva, duracionEstadia)
     {
-        private const decimal TarifaBase = 150000m;
-        private const decimal Descuento = 0.20m;
+        if (tarifaFija <= 0)
+            throw new ArgumentException("Tarifa VIP no válida");
 
-        public HabitacionVIP(
-            string nombreCliente,
-            int numeroHabitacion,
-            DateTime fechaReserva,
-            int duracionEstadia
-        ) : base(nombreCliente, numeroHabitacion, fechaReserva, duracionEstadia) { }
-
-        public override decimal CalcularCostoTotal()
-        {
-            decimal costoBase = TarifaBase * DuracionEstadia;
-            return DuracionEstadia > 5 ? costoBase * (1 - Descuento) : costoBase;
-        }
+        TarifaFija = tarifaFija;
     }
-}
+
+    public override decimal CalcularCostoTotal()
+    {
+        decimal costoBase = TarifaFija * DuracionEstadia;
+        return (DuracionEstadia > 5) ? costoBase * (1 - Descuento) : costoBase;
+    }
+
+   }
